@@ -1,13 +1,12 @@
 package ru.timur.learning.configuration;
 
+import javax.servlet.ServletContext;
+import javax.servlet.ServletRegistration;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletRegistration;
 
 public class ApplicationInitializer implements WebApplicationInitializer {
     @Override
@@ -22,7 +21,8 @@ public class ApplicationInitializer implements WebApplicationInitializer {
 
         // Register and map the dispatcher servlet
         ServletRegistration.Dynamic dispatcher =
-                container.addServlet("dispatcher", new DispatcherServlet(new GenericWebApplicationContext()));
+                container.addServlet("dispatcher",
+                        new DispatcherServlet(new GenericWebApplicationContext()));
         dispatcher.setLoadOnStartup(1);
         dispatcher.addMapping("/");
     }

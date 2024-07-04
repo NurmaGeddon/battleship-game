@@ -11,7 +11,7 @@ import org.springframework.web.servlet.view.JstlView;
 
 @EnableWebMvc
 @Configuration
-@ComponentScan(basePackages = { "ru.timur.learning" })
+@ComponentScan(basePackages = {"ru.timur.learning"})
 public class WebConfig implements WebMvcConfigurer {
     @Bean
     public ViewResolver viewResolver() {
