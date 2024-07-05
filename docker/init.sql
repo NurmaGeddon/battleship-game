@@ -1,0 +1,1 @@
+-- creating tables and inserting values in to them must be done here
