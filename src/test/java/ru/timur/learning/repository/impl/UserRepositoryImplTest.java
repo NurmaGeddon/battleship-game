@@ -1,23 +1,29 @@
 package ru.timur.learning.repository.impl;
 
-import ru.timur.learning.db.impl.ConnectionManagerImpl;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import ru.timur.learning.configuration.WebConfig;
 import ru.timur.learning.model.User;
+import org.springframework.test.context.ContextConfiguration;
 import ru.timur.learning.repository.UserRepository;
-import ru.timur.learning.repository.mapper.UserResultSetMapper;
 
-import javax.swing.text.html.Option;
-
+import javax.sql.DataSource;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ContextConfiguration(classes = WebConfig.class)
 class UserRepositoryImplTest {
 
     private UserRepository userRepository;
 
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
-        userRepository = new UserRepositoryImpl(new ConnectionManagerImpl(), new UserResultSetMapper());
+        ApplicationContext testContext = new AnnotationConfigApplicationContext(TestConfig.class);
+
+        DataSource dataSource = testContext.getBean(DataSource.class);
+
+        userRepository = new UserRepositoryImpl(dataSource);
     }
 
     @org.junit.jupiter.api.AfterEach
@@ -26,8 +32,13 @@ class UserRepositoryImplTest {
 
     @org.junit.jupiter.api.Test
     void save() {
-        User newUser = new User(10L, "login10", "password10", 10L);
+        User newUser = new User(null, "login10", "password10");
+        User savedUser = userRepository.save(newUser);
 
+        assertEquals(newUser.getLogin(), savedUser.getLogin());
+        assertEquals(newUser.getPassword(), savedUser.getPassword());
+
+        userRepository.deleteById(savedUser.getId());
     }
 
     @org.junit.jupiter.api.Test
@@ -42,17 +53,27 @@ class UserRepositoryImplTest {
 
     @org.junit.jupiter.api.Test
     void update() {
+        User testUser = new User(null, "login10", "password10");
+        User savedUser = userRepository.save(testUser);
+        User updatedUser = new User(savedUser.getId(), "newlogin10", "newpassword10");
+        userRepository.update(updatedUser);
+
+        Optional<User> expected = Optional.of(updatedUser);
+        Optional<User> actual = userRepository.findById(savedUser.getId());
+        assertEquals(expected, actual);
+
+        userRepository.deleteById(savedUser.getId());
     }
 
     @org.junit.jupiter.api.Test
     void deleteById() {
-        User testUser = new User(10L, "login10", "password10", 10L);
-        userRepository.save(testUser);
+        User newUser = new User(null, "login10", "password10");
+        User savedUser = userRepository.save(newUser);
 
-        assertTrue(userRepository.deleteById(testUser.id()));
+        assertTrue(userRepository.deleteById(savedUser.getId()));
 
         Optional<User> expected = Optional.empty();
-        Optional<User> actual = userRepository.findById(testUser.id());
+        Optional<User> actual = userRepository.findById(savedUser.getId());
         assertEquals(expected, actual);
     }
 }

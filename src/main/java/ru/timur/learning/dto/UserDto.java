@@ -1,4 +1,4 @@
-package ru.timur.learning.model;
+package ru.timur.learning.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class User {
-    private Long id;
+public class UserDto {
     private String login;
     private String password;
 }
