@@ -6,14 +6,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.timur.learning.dto.UserDto;
-import ru.timur.learning.model.User;
 import ru.timur.learning.service.SignUpService;
 
 
 @RequiredArgsConstructor
 @Controller
-@RequestMapping("/signUp")
-public class SignUpController {
+@RequestMapping("/registration")
+public class RegistrationController {
 
     private final SignUpService signUpService;
 
@@ -23,13 +22,13 @@ public class SignUpController {
             return "redirect:/";
         }
         model.addAttribute(new UserDto());
-        return "signUp_page";
+        return "registration";
     }
 
     @PostMapping
     public String signUpUser(UserDto userDto) {
 
         signUpService.signUp(userDto);
-        return "redirect:/signIn";
+        return "redirect:/login";
     }
 }

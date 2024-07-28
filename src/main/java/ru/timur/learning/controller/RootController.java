@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class RootController {
     @GetMapping
     public String redirectToSingIn() {
-        return "redirect:/signIn";
+        return "redirect:/login";
     }
 }

@@ -2,15 +2,13 @@ package ru.timur.learning.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-public class SignInController {
+public class LoginController {
 
-    @GetMapping("/signIn")
+    @GetMapping("/login")
     public String getSignInPage() {
-        return "signIn_page";
+        return "login";
     }
 
 //    @PostMapping

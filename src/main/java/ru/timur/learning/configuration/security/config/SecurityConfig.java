@@ -10,10 +10,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
-import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-
-import javax.sql.DataSource;
 
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -24,19 +20,20 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf().disable();
         http
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/", "/signIn", "/signUp").permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 );
 
         http.formLogin()
-                .loginPage("/signIn")
+                .loginPage("/login")
+                .loginProcessingUrl("/login")
                 .defaultSuccessUrl("/battleship")
                 .failureUrl("/signIn?error")
                 .usernameParameter("login")
                 .passwordParameter("password")
-                .permitAll();
+                .permitAll(); 
 
         return http.build();
     }
@@ -46,12 +43,4 @@ public class SecurityConfig {
         builder.userDetailsService(customUserDetailsService)
                 .passwordEncoder(passwordEncoder);
     }
-
-    @Bean
-    public PersistentTokenRepository tokenRepository(DataSource dataSource) {
-        JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();
-        jdbcTokenRepository.setDataSource(dataSource);
-        return jdbcTokenRepository;
-    }
-
 }
