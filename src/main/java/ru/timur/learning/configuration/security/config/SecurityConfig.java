@@ -21,10 +21,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable();
-        http
-                .authorizeHttpRequests((authorize) -> authorize
-                        .anyRequest().permitAll()
-                );
+
+        http.authorizeHttpRequests(authorize ->
+                authorize.requestMatchers("/registration")
+                        .permitAll()
+                        .anyRequest()
+                        .authenticated()
+        );
 
         http.formLogin()
                 .loginPage("/login")
@@ -33,7 +36,7 @@ public class SecurityConfig {
                 .failureUrl("/signIn?error")
                 .usernameParameter("login")
                 .passwordParameter("password")
-                .permitAll(); 
+                .permitAll();
 
         return http.build();
     }
