@@ -31,9 +31,8 @@ public class SecurityConfig {
 
         http.formLogin()
                 .loginPage("/login")
-                .loginProcessingUrl("/login")
-                .defaultSuccessUrl("/battleship")
-                .failureUrl("/signIn?error")
+                .loginProcessingUrl("/perform-login")
+                .defaultSuccessUrl("/profile")
                 .usernameParameter("login")
                 .passwordParameter("password")
                 .permitAll();
