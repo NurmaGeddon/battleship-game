@@ -1,2 +1,9 @@
 application:
   name: BattleshipGame
+db:
+  url: jdbc:postgresql://localhost:5432/docker_pg
+  username: user
+  password: qwerty007
+  driver-class-name: org.postgresql.Driver
+  hikari:
+    MaxPoolSize: 20

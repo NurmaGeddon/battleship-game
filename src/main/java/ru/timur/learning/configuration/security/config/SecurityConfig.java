@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -31,12 +32,13 @@ public class SecurityConfig {
 
         http.formLogin()
                 .loginPage("/login")
-                .loginProcessingUrl("/login")
-                .defaultSuccessUrl("/battleship")
-                .failureUrl("/signIn?error")
+                .loginProcessingUrl("/perform-login")
+                .defaultSuccessUrl("/profile")
                 .usernameParameter("login")
                 .passwordParameter("password")
                 .permitAll();
+
+        http.logout();
 
         return http.build();
     }
@@ -45,5 +47,10 @@ public class SecurityConfig {
     public void bindUserDetailsService(AuthenticationManagerBuilder builder, PasswordEncoder passwordEncoder) throws Exception {
         builder.userDetailsService(customUserDetailsService)
                 .passwordEncoder(passwordEncoder);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 }
