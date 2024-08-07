@@ -4,6 +4,18 @@ create table if not exists account (
     password text not null
 );
 
+create table if not exists game (
+    id bigserial primary key,
+    state text not null
+)
+
+create table if not exists account_game (
+    house_id bigint not null,
+    game_id bigint not null,
+    foreign key (house_id) references account(id),
+    foreign key (tenant_id) references game(id)
+)
+
 insert into account (login, password)
 values ('login', '{bcrypt}$2a$10$9i9QwTNdZASQ9fUkqAvE5u2epITMCroq14ltyYWPNhLdxzDJ/c7nG'),
        ('login1', '{bcrypt}$2a$10$wZ.7Ez0KRehkJUWvos4sMOu9GUESSJKK7z2FF2QTp9AhAmjiuD1i6'),

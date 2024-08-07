@@ -1,7 +1,6 @@
 package ru.timur.learning.repository.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import ru.timur.learning.exception.InternalServerErrorException;
 import ru.timur.learning.model.User;
@@ -47,7 +46,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User save(User user) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(SQL_INSERT)) {
+            PreparedStatement statement = connection.prepareStatement(SQL_INSERT)) {
 
             statement.setString(1, user.getLogin());
             statement.setString(2, user.getPassword());
@@ -64,7 +63,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Optional<User> findById(Long id) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_ID)) {
+            PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_ID)) {
 
             statement.setLong(1, id);
             ResultSet resultSet = statement.executeQuery();
@@ -81,7 +80,7 @@ public class UserRepositoryImpl implements UserRepository {
     public List<User> findAll() {
 
         try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement()) {
+            Statement statement = connection.createStatement()) {
 
             ResultSet resultSet = statement.executeQuery(SQL_SELECT_ALL);
 
@@ -94,7 +93,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User update(User user) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(SQL_UPDATE)) {
+            PreparedStatement statement = connection.prepareStatement(SQL_UPDATE)) {
 
             statement.setString(1, user.getLogin());
             statement.setString(2, user.getPassword());
@@ -112,7 +111,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public boolean deleteById(Long id) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(SQL_DELETE)) {
+            PreparedStatement statement = connection.prepareStatement(SQL_DELETE)) {
 
             statement.setLong(1, id);
 
@@ -125,7 +124,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Optional<User> findByEmail(String login) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_LOGIN)) {
+            PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_LOGIN)) {
 
             statement.setString(1, login);
             ResultSet resultSet = statement.executeQuery();
