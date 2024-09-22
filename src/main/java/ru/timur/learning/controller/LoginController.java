@@ -10,9 +10,4 @@ public class LoginController {
     public String getSignInPage() {
         return "login";
     }
-
-//    @PostMapping
-//    public String singIn() {
-//        return "redirect:/battleship";
-//    }
 }
