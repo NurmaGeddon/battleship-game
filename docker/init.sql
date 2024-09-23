@@ -27,6 +27,15 @@ create table if not exists ship (
     coordinates point[] not null
 );
 
+create table if not exists shot (
+    game_id bigint not null,
+    shot_num integer not null,
+    player_number integer check (player_number in (1, 2)) not null,
+    coordinate point not null,
+    outcome text check (outcome in ('HIT', 'MISS')),
+    primary key (game_id, shot_num)
+);
+
 create table if not exists account_game (
     account_id bigint not null,
     game_id bigint not null,
