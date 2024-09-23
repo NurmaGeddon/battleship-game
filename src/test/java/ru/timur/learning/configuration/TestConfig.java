@@ -8,10 +8,13 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import ru.timur.learning.model.User;
 import ru.timur.learning.model.entity.GameEntity;
+import ru.timur.learning.model.entity.ShipEntity;
 import ru.timur.learning.repository.*;
 import ru.timur.learning.repository.impl.GameRepositoryImpl;
+import ru.timur.learning.repository.impl.ShipRepositoryImpl;
 import ru.timur.learning.repository.impl.UserRepositoryImpl;
 import ru.timur.learning.repository.mapper.GameResultSetMapper;
+import ru.timur.learning.repository.mapper.ShipResultSetMapper;
 import ru.timur.learning.repository.mapper.UserResultSetMapper;
 
 import javax.sql.DataSource;
@@ -45,6 +48,11 @@ public class TestConfig {
     }
 
     @Bean
+    public ShipRepository getShipRepository(DataSource dataSource, ResultSetMapper<ShipEntity> shipEntityResultSetMapper) {
+        return new ShipRepositoryImpl(dataSource, shipEntityResultSetMapper);
+    }
+
+    @Bean
     public ResultSetMapper<User> getUserResultSetMapper() {
         return new UserResultSetMapper();
     }
@@ -52,5 +60,10 @@ public class TestConfig {
     @Bean
     public ResultSetMapper<GameEntity> getGameResultSetMapper() {
         return new GameResultSetMapper();
+    }
+
+    @Bean
+    public ResultSetMapper<ShipEntity> getShipResultSetMapper() {
+        return new ShipResultSetMapper();
     }
 }
