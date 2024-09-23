@@ -20,6 +20,13 @@ create table if not exists game (
     winner_id bigint
 );
 
+create table if not exists ship (
+    id bigserial primary key,
+    game_id bigint not null,
+    player_number integer check (player_number in (1, 2)) not null,
+    coordinates point[] not null
+);
+
 create table if not exists account_game (
     account_id bigint not null,
     game_id bigint not null,
