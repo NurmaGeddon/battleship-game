@@ -7,8 +7,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import ru.timur.learning.model.User;
+import ru.timur.learning.model.entity.GameEntity;
 import ru.timur.learning.repository.*;
+import ru.timur.learning.repository.impl.GameRepositoryImpl;
 import ru.timur.learning.repository.impl.UserRepositoryImpl;
+import ru.timur.learning.repository.mapper.GameResultSetMapper;
 import ru.timur.learning.repository.mapper.UserResultSetMapper;
 
 import javax.sql.DataSource;
@@ -37,7 +40,17 @@ public class TestConfig {
     }
 
     @Bean
+    public GameRepository getGameRepository(DataSource dataSource, ResultSetMapper<GameEntity> gameEntityResultSetMapper) {
+        return new GameRepositoryImpl(dataSource, gameEntityResultSetMapper);
+    }
+
+    @Bean
     public ResultSetMapper<User> getUserResultSetMapper() {
         return new UserResultSetMapper();
+    }
+
+    @Bean
+    public ResultSetMapper<GameEntity> getGameResultSetMapper() {
+        return new GameResultSetMapper();
     }
 }
