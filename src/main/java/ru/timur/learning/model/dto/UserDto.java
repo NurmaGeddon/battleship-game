@@ -1,4 +1,4 @@
-package ru.timur.learning.dto;
+package ru.timur.learning.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

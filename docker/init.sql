@@ -4,6 +4,36 @@ create table if not exists account (
     password text not null
 );
 
+create table if not exists game (
+    id bigserial primary key,
+    player1_id bigint,
+    player2_id bigint,
+    player1_ready boolean default false,
+    player2_ready boolean default false,
+    state text check ( state in ('WAITING_FOR_PLAYER',
+                                'SHIP_PLACEMENT',
+                                'PLAYER1_TURN',
+                                'PLAYER2_TURN',
+                                'GAME_FINISHED',
+                                'CANCELLED') )
+                                default 'WAITING_FOR_PLAYER',
+    winner_id bigint
+);
+
+create table if not exists ship (
+    id bigserial primary key,
+    game_id bigint not null,
+    player_number integer check (player_number in (1, 2)) not null,
+    coordinates point[] not null
+);
+
+create table if not exists account_game (
+    account_id bigint not null,
+    game_id bigint not null,
+    foreign key (account_id) references account(id),
+    foreign key (game_id) references game(id)
+);
+
 insert into account (login, password)
 values ('login', '{bcrypt}$2a$10$9i9QwTNdZASQ9fUkqAvE5u2epITMCroq14ltyYWPNhLdxzDJ/c7nG'),
        ('login1', '{bcrypt}$2a$10$wZ.7Ez0KRehkJUWvos4sMOu9GUESSJKK7z2FF2QTp9AhAmjiuD1i6'),
