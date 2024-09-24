@@ -1,12 +1,11 @@
 package ru.timur.learning.repository.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import ru.timur.learning.exception.InternalServerErrorException;
 import ru.timur.learning.model.User;
+import ru.timur.learning.repository.ResultSetMapper;
 import ru.timur.learning.repository.UserRepository;
-import ru.timur.learning.repository.mapper.UserResultSetMapper;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -15,7 +14,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Repository
@@ -32,7 +30,7 @@ public class UserRepositoryImpl implements UserRepository {
     private static final String SQL_FIND_BY_LOGIN = "select * from account where login=?";
 
     //language=SQL
-    private static final String SQL_SELECT_ALL = "select * from account order by id";
+    private static final String SQL_FIND_ALL = "select * from account order by id";
 
     //language=SQL
     private static final String SQL_UPDATE = "update account " +
@@ -42,19 +40,24 @@ public class UserRepositoryImpl implements UserRepository {
     //language=SQL
     private static final String SQL_DELETE = "delete from account where id=?";
 
+    //language=SQL
+    private static final String SQL_DELETE_ALL = "truncate table account cascade";
+
     private final DataSource dataSource;
+
+    private final ResultSetMapper<User> userResultSetMapper;
 
     @Override
     public User save(User user) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(SQL_INSERT)) {
+            PreparedStatement statement = connection.prepareStatement(SQL_INSERT)) {
 
             statement.setString(1, user.getLogin());
             statement.setString(2, user.getPassword());
             ResultSet resultSet = statement.executeQuery();
 
             return resultSet.next()
-                    ? UserResultSetMapper.parseUser(resultSet)
+                    ? userResultSetMapper.parseObject(resultSet)
                     : null;
         } catch (SQLException e) {
             throw new InternalServerErrorException(e);
@@ -62,16 +65,16 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Optional<User> findById(Long id) {
+    public User findById(Long id) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_ID)) {
+            PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_ID)) {
 
             statement.setLong(1, id);
             ResultSet resultSet = statement.executeQuery();
 
             return resultSet.next()
-                    ? Optional.of(UserResultSetMapper.parseUser(resultSet))
-                    : Optional.empty();
+                    ? userResultSetMapper.parseObject(resultSet)
+                    : null;
         } catch (SQLException e) {
             throw new InternalServerErrorException(e);
         }
@@ -79,13 +82,12 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> findAll() {
-
         try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement()) {
+            Statement statement = connection.createStatement()) {
 
-            ResultSet resultSet = statement.executeQuery(SQL_SELECT_ALL);
+            ResultSet resultSet = statement.executeQuery(SQL_FIND_ALL);
 
-            return UserResultSetMapper.parseUsers(resultSet);
+            return userResultSetMapper.parseObjects(resultSet);
         } catch (SQLException e) {
             throw new InternalServerErrorException(e);
         }
@@ -94,7 +96,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User update(User user) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(SQL_UPDATE)) {
+            PreparedStatement statement = connection.prepareStatement(SQL_UPDATE)) {
 
             statement.setString(1, user.getLogin());
             statement.setString(2, user.getPassword());
@@ -102,7 +104,7 @@ public class UserRepositoryImpl implements UserRepository {
             ResultSet resultSet = statement.executeQuery();
 
             return resultSet.next()
-                    ? UserResultSetMapper.parseUser(resultSet)
+                    ? userResultSetMapper.parseObject(resultSet)
                     : null;
         } catch (SQLException e) {
             throw new InternalServerErrorException(e);
@@ -112,7 +114,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public boolean deleteById(Long id) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(SQL_DELETE)) {
+            PreparedStatement statement = connection.prepareStatement(SQL_DELETE)) {
 
             statement.setLong(1, id);
 
@@ -123,16 +125,26 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Optional<User> findByEmail(String login) {
+    public void deleteAll() {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_LOGIN)) {
+             PreparedStatement statement = connection.prepareStatement(SQL_DELETE_ALL)) {
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new InternalServerErrorException(e);
+        }
+    }
+
+    @Override
+    public User findByEmail(String login) {
+        try (Connection connection = dataSource.getConnection();
+            PreparedStatement statement = connection.prepareStatement(SQL_FIND_BY_LOGIN)) {
 
             statement.setString(1, login);
             ResultSet resultSet = statement.executeQuery();
 
             return resultSet.next()
-                    ? Optional.of(UserResultSetMapper.parseUser(resultSet))
-                    : Optional.empty();
+                    ? userResultSetMapper.parseObject(resultSet)
+                    : null;
         } catch (SQLException e) {
             throw new InternalServerErrorException(e);
         }
