@@ -38,6 +38,8 @@ public class SecurityConfig {
                 .passwordParameter("password")
                 .permitAll();
 
+        http.logout();
+
         return http.build();
     }
 
