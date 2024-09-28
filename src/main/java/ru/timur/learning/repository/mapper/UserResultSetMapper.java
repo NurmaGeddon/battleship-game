@@ -25,7 +25,7 @@ public class UserResultSetMapper implements ResultSetMapper<User> {
     @Override
     public User parseObject(ResultSet row) throws SQLException{
         return new User(
-                row.getLong(1),
+                (Long) row.getObject(1),
                 row.getString(2),
                 row.getString(3)
         );

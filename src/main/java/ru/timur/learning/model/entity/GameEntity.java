@@ -2,12 +2,19 @@ package ru.timur.learning.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class GameEntity {
+    public void changePlayerShotTurn() {
+        if (gameState.equals(GameState.PLAYER1_TURN)) {
+            gameState = GameState.PLAYER2_TURN;
+        } else if (gameState.equals(GameState.PLAYER2_TURN)) {
+            gameState = GameState.PLAYER1_TURN;
+        } else {
+            throw new IllegalStateException("Cannot change player turn");
+        }
+    }
 
     public enum GameState {
         WAITING_FOR_PLAYER,
@@ -41,5 +48,10 @@ public class GameEntity {
             throw new IllegalArgumentException("Cant change player ready status," +
                                                " player not found in game");
         }
+    }
+
+    public void updateWithPlayer2(Long player2Id) {
+        this.setPlayer2Id(player2Id);
+        this.setGameState(GameState.SHIP_PLACEMENT);
     }
 }

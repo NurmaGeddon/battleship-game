@@ -26,6 +26,10 @@ public class ShipRepositoryImpl implements ShipRepository {
     private static final String SQL_FIND_ALL_BY_GAME_ID = "select * from ship where game_id=?";
 
     //language=SQL
+    private static final String SQL_FIND_ALL_BY_GAME_ID_BY_PLAYER_NUMBER = "select * from ship " +
+            "where game_id=? and player_number=?";
+
+    //language=SQL
     private static final String SQL_FIND_ALL = "select * from ship order by id";
 
     //language=SQL
@@ -142,6 +146,22 @@ public class ShipRepositoryImpl implements ShipRepository {
              PreparedStatement statement = connection.prepareStatement(SQL_FIND_ALL_BY_GAME_ID)) {
 
             statement.setLong(1, gameId);
+            ResultSet resultSet = statement.executeQuery();
+
+            return shipResultSetMapper.parseObjects(resultSet);
+        } catch (SQLException e) {
+            throw new InternalServerErrorException(e);
+        }
+    }
+
+    @Override
+    public List<ShipEntity> findAllForGameAndPlayer(Long gameId, Integer playerNumber) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection
+                     .prepareStatement(SQL_FIND_ALL_BY_GAME_ID_BY_PLAYER_NUMBER)) {
+
+            statement.setLong(1, gameId);
+            statement.setInt(2, playerNumber);
             ResultSet resultSet = statement.executeQuery();
 
             return shipResultSetMapper.parseObjects(resultSet);

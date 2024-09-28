@@ -32,11 +32,11 @@ class GameRepositoryImplTest {
         gameEntity = new GameEntity(
                 null,
                 1L,
-                0L,
+                null,
                 false,
                 false,
                 null,
-                0L);
+                null);
     }
 
     @AfterEach
@@ -66,8 +66,8 @@ class GameRepositoryImplTest {
     @Test
     void findAll() {
         GameEntity gameEntity1 = gameEntity;
-        GameEntity gameEntity2 = new GameEntity(null, 2L, 0L, false, false, null, 0L);
-        GameEntity gameEntity3 = new GameEntity(null, 3L, 0L, false, false, null, 0L);
+        GameEntity gameEntity2 = new GameEntity(null, 2L, null, false, false, null, null);
+        GameEntity gameEntity3 = new GameEntity(null, 3L, null, false, false, null, null);
 
         GameEntity saved1 = gameRepository.save(gameEntity1);
         GameEntity saved2 = gameRepository.save(gameEntity2);
@@ -108,8 +108,8 @@ class GameRepositoryImplTest {
     @Test
     void deleteAll() {
         GameEntity gameEntity1 = gameEntity;
-        GameEntity gameEntity2 = new GameEntity(null, 2L, 0L, false, false, null, 0L);
-        GameEntity gameEntity3 = new GameEntity(null, 3L, 0L, false, false, null, 0L);
+        GameEntity gameEntity2 = new GameEntity(null, 2L, null, false, false, null, null);
+        GameEntity gameEntity3 = new GameEntity(null, 3L, null, false, false, null, null);
 
         GameEntity saved1 = gameRepository.save(gameEntity1);
         GameEntity saved2 = gameRepository.save(gameEntity2);

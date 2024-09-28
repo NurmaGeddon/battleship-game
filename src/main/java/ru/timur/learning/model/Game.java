@@ -2,14 +2,12 @@ package ru.timur.learning.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.postgresql.geometric.PGpoint;
 import ru.timur.learning.model.entity.GameEntity;
 import ru.timur.learning.model.entity.ShotEntity;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class Game {
     private Long id;
 
@@ -42,15 +40,27 @@ public class Game {
         }
     }
 
-    public ShotEntity.Outcome getShotOutcome(Long userId, PGpoint point) {
+    public Board getMyBoard(Long userId) {
         Integer playerNumber = getPlayerNumberForGame(userId);
-        Board opponentBoard = getOpponentBoard(playerNumber);
-
-        return opponentBoard.getShotOutcome(point);
+        if (playerNumber.equals(1)) {
+            return player1Board;
+        } else {
+            return player2Board;
+        }
     }
 
-    private Board getOpponentBoard(Integer shooterPlayerNumber) {
-        return shooterPlayerNumber.equals(1) ? player2Board :
-                shooterPlayerNumber.equals(2) ? player1Board : null;
+    public Board getOpponentBoard(Long userId) {
+        Integer playerNumber = getPlayerNumberForGame(userId);
+        if (playerNumber.equals(1)) {
+            return player2Board;
+        } else {
+            return player1Board;
+        }
+    }
+
+    public ShotEntity.Outcome getShotOutcome(Long userId, PGpoint point) {
+        Board opponentBoard = getOpponentBoard(userId);
+
+        return opponentBoard.getShotOutcome(point);
     }
 }

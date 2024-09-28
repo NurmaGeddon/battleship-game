@@ -12,5 +12,7 @@ public interface GameService {
 
     GameDto getGameForUser(Long gameId, Long userId);
 
-    void userReadyForGame(Long gameId, Long userId);
+    void changeUserStatusToReady(Long gameId, Long userId);
+
+    void changePlayerShotTurn(Long gameId);
 }

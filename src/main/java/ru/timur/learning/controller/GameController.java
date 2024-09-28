@@ -14,28 +14,48 @@ public class GameController {
 
     private final GameService gameService;
 
+    /**
+     * Creates new game
+     * @param userDetails
+     * @return created game ID
+     */
     @PostMapping("/create")
-    public String createGame(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long gameId = gameService.createGame(userDetails.getUserId());
-        return gameId.toString();
+    public Long createGame(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return gameService.createGame(userDetails.getUserId());
     }
 
+    /**
+     * Joins user to game without a second player
+     * @param userDetails
+     * @return created game ID
+     */
     @PostMapping("/auto_join")
-    public String joinGame(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long gameId = gameService.joinGame(userDetails.getUserId());
-        return gameId.toString();
+    public Long joinGame(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return gameService.joinGame(userDetails.getUserId());
     }
 
+    /**
+     * Returns game view depending on player
+     * @param userDetails
+     * @param gameId id of the game
+     * @return dto object for game
+     */
     @GetMapping("/{gameId}")
-    public GameDto getGamePage(@AuthenticationPrincipal CustomUserDetails userDetails,
-                               @PathVariable Long gameId) {
+    public GameDto getGame(@AuthenticationPrincipal CustomUserDetails userDetails,
+                           @PathVariable Long gameId) {
         return gameService.getGameForUser(gameId, userDetails.getUserId());
     }
 
+    /**
+     * Signals to server that player is finished placing ships
+     * @param userDetails
+     * @param gameId id of the game
+     * @return dto object for game
+     */
     @PostMapping("{gameId}/ready")
     public GameDto playerReadyForGame(@AuthenticationPrincipal CustomUserDetails userDetails,
                                       @PathVariable Long gameId) {
-        gameService.userReadyForGame(gameId, userDetails.getUserId());
+        gameService.changeUserStatusToReady(gameId, userDetails.getUserId());
         return gameService.getGameForUser(gameId, userDetails.getUserId());
     }
 }

@@ -24,14 +24,13 @@ public class GameResultSetMapper implements ResultSetMapper<GameEntity> {
     @Override
     public GameEntity parseObject(ResultSet row) throws SQLException {
         return new GameEntity(
-                row.getLong(1),
-                row.getLong(2),
-                row.getLong(3),
-                row.getBoolean(4),
-                row.getBoolean(5),
+                (Long) row.getObject(1),
+                (Long) row.getObject(2),
+                (Long) row.getObject(3),
+                (Boolean) row.getObject(4),
+                (Boolean) row.getObject(5),
                 GameEntity.GameState.valueOf(row.getString(6)),
                 row.getLong(7)
-        );
-
+                );
     }
 }
