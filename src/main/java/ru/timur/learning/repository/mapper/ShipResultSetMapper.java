@@ -29,9 +29,9 @@ public class ShipResultSetMapper implements ResultSetMapper<ShipEntity> {
         Object[] objects = (Object []) row.getArray(4).getArray();
         PGpoint[] pGPoints = Arrays.stream(objects).map(ob -> (PGpoint) ob).toArray(PGpoint[]::new);
         return new ShipEntity(
-                row.getLong(1),
-                row.getLong(2),
-                row.getInt(3),
+                (Long) row.getObject(1),
+                (Long) row.getObject(2),
+                (Integer) row.getObject(3),
                 pGPoints
         );
     }

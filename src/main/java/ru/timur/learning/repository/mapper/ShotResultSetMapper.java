@@ -25,9 +25,9 @@ public class ShotResultSetMapper implements ResultSetMapper<ShotEntity> {
     @Override
     public ShotEntity parseObject(ResultSet row) throws SQLException {
         return new ShotEntity(
-                row.getLong(1),
-                row.getInt(2),
-                row.getInt(3),
+                (Long) row.getObject(1),
+                (Integer) row.getObject(2),
+                (Integer) row.getObject(3),
                 (PGpoint) row.getObject(4),
                 ShotEntity.Outcome.valueOf(row.getString(5))
         );

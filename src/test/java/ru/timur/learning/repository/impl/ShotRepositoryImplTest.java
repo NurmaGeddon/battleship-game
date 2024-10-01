@@ -117,7 +117,7 @@ class ShotRepositoryImplTest {
         ShotEntity saved3 = shotRepository.save(shotEntity3);
 
 
-        List<ShotEntity> expected = List.of(saved2, saved1);
+        List<ShotEntity> expected = List.of(saved1, saved2);
         List<ShotEntity> actual = shotRepository.findShotsForPlayer(1L, 1);
 
         Assertions.assertEquals(expected, actual);
