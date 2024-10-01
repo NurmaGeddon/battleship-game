@@ -8,6 +8,7 @@ import ru.timur.learning.model.Game;
 import ru.timur.learning.model.ShipsOnBoard;
 import ru.timur.learning.model.dto.GameDto;
 import ru.timur.learning.model.entity.GameEntity;
+import ru.timur.learning.model.entity.ShipEntity;
 import ru.timur.learning.repository.GameRepository;
 import ru.timur.learning.service.GameService;
 import ru.timur.learning.service.ShotService;
@@ -116,6 +117,24 @@ public class GameServiceImpl implements GameService {
         gameRepository.update(gameEntity);
     }
 
+    @Override
+    public void checkIfPlayerWon(Long gameId, Long userId) {
+        Game game = getGame(gameId);
+        Board board = game.getOpponentBoard(userId);
+
+        if (board.checkPlayerWon()) {
+            changeGameEntityForWinner(gameId, userId);
+            throw new RuntimeException("Player №" + game.getPlayerNumberForGame(userId) + " is won");
+        }
+    }
+
+    private void changeGameEntityForWinner(Long gameId, Long userId) {
+        GameEntity gameEntity = gameRepository.findById(gameId);
+        gameEntity.setWinnerId(userId);
+        gameEntity.setGameState(GameEntity.GameState.GAME_FINISHED);
+        gameRepository.update(gameEntity);
+    }
+
     private void checkPlayerFinishedShipPlacement(Long gameId, Long userId) {
         Game game = getGame(gameId);
         ShipsOnBoard shipsOnBoard = game.getMyBoard(userId).getShipsOnBoard();
@@ -145,11 +164,11 @@ public class GameServiceImpl implements GameService {
 
     private Board createBoard(Long gameId, Integer playerNumber) {
         ShipsOnBoard shipsOnBoard = shipService.createShipsOnBoard(gameId, playerNumber);
-        List<PGpoint> shipsCoordinates = shipService.getShipsCoordinates(gameId, playerNumber);
+        List<ShipEntity> shipsForPlayer = shipService.getShipsForPlayer(gameId, playerNumber);
 
         Integer opponentPlayerNumber = playerNumber.equals(1) ? 2 : 1;
         List<PGpoint> shotsCoordinates = shotService.getCoordinates(gameId, opponentPlayerNumber);
 
-        return new Board(shipsOnBoard, shipsCoordinates, shotsCoordinates);
+        return new Board(shipsOnBoard, shipsForPlayer, shotsCoordinates);
     }
 }

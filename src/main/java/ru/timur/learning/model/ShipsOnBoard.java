@@ -2,6 +2,7 @@ package ru.timur.learning.model;
 
 import lombok.Getter;
 import ru.timur.learning.model.entity.ShipEntity;
+import ru.timur.learning.settings.Settings;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,14 +13,6 @@ import java.util.Map;
  */
 @Getter
 public class ShipsOnBoard {
-
-    // TODO move to separate settings class
-    private static final Map<Integer, Integer> SHIP_LENGTH_TO_MAX_NUM_SHIPS = Map.of(
-            2, 1, //5
-            3, 1, //7
-            4, 1, // 2
-            5, 1
-    );
 
     private final Map<Integer, Integer> shipLengthToNumShips;
 
@@ -50,15 +43,15 @@ public class ShipsOnBoard {
     }
 
     private Integer getMaxNumShips(Integer length) {
-        if (!SHIP_LENGTH_TO_MAX_NUM_SHIPS.containsKey(length)) {
+        if (!Settings.SHIP_LENGTH_TO_MAX_NUM_SHIPS.containsKey(length)) {
             throw new IllegalArgumentException("Illegal ship length");
         }
-        return SHIP_LENGTH_TO_MAX_NUM_SHIPS.get(length);
+        return Settings.SHIP_LENGTH_TO_MAX_NUM_SHIPS.get(length);
     }
 
     public void checkPlacedAllShips() {
         if (!shipLengthToNumShips.entrySet()
-                .equals(SHIP_LENGTH_TO_MAX_NUM_SHIPS.entrySet())) {
+                .equals(Settings.SHIP_LENGTH_TO_MAX_NUM_SHIPS.entrySet())) {
             throw new IllegalArgumentException("Player not finished placing ships");
         }
     }

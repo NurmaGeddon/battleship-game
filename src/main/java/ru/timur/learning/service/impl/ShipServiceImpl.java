@@ -12,7 +12,6 @@ import ru.timur.learning.model.entity.ShipEntity;
 import ru.timur.learning.repository.ShipRepository;
 import ru.timur.learning.service.ShipService;
 
-import java.util.*;
 import java.util.List;
 
 @Service
@@ -28,21 +27,8 @@ public class ShipServiceImpl implements ShipService {
     }
 
     @Override
-    public List<PGpoint> getShipsCoordinates(Long gameId, Integer playerNumber) {
-        List<ShipEntity> shipEntities = shipRepository.findAllForGameAndPlayer(gameId, playerNumber);
-        List<PGpoint[]> shipsCoordinates = shipEntities
-                .stream()
-                .map(ShipEntity::getCoordinates)
-                .toList();
-        return makeListOfCoordinates(shipsCoordinates);
-    }
-
-    private List<PGpoint> makeListOfCoordinates(List<PGpoint[]> shipsCoordinates) {
-        List<PGpoint> result = new ArrayList<>();
-        for (PGpoint[] points : shipsCoordinates) {
-            result.addAll(Arrays.stream(points).toList());
-        }
-        return result;
+    public List<ShipEntity> getShipsForPlayer(Long gameId, Integer playerNumber) {
+        return shipRepository.findAllForGameAndPlayer(gameId, playerNumber);
     }
 
     @Override
@@ -64,6 +50,7 @@ public class ShipServiceImpl implements ShipService {
     }
 
     private void checkPlayerCanPlaceShip(Game game, Long userId, ShipDto shipDto) {
+        // TODO check that player is not ready for game
         checkGameState(game);
         checkPlayerCanPlaceShipWithSize(game, userId, shipDto.getCoordinates().length);
         checkCoordinatesAreFree(game, userId, shipDto);
@@ -71,7 +58,7 @@ public class ShipServiceImpl implements ShipService {
 
     private void checkGameState(Game game) {
         if (!game.getGameState().equals(GameEntity.GameState.SHIP_PLACEMENT)) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Wrong game state");
         }
     }
 
@@ -87,10 +74,37 @@ public class ShipServiceImpl implements ShipService {
 
 
     @Override
-    public void changeShipPlacement(Long gameId, Long shipId, ShipDto shipDto) {
+    public void changeShipPlacement(Game game, Long userId, Long shipId, ShipDto shipDto) {
+        checkPlayerCanChangeShipPlacement(game, userId, shipId, shipDto);
+
         ShipEntity shipEntity = shipRepository.findById(shipId);
         shipEntity.setCoordinates(shipDto.getCoordinates());
-        shipRepository.save(shipEntity);
+        shipRepository.update(shipEntity);
+    }
+
+    private void checkPlayerCanChangeShipPlacement(Game game, Long userId, Long shipId, ShipDto shipDto) {
+        // TODO check that player is not ready for game
+        checkGameState(game);
+        checkShipLengthsAreSame(shipId, shipDto);
+        checkCanChangeShipToCoordinates(game, userId, shipId, shipDto);
+    }
+
+    private void checkShipLengthsAreSame(Long shipId, ShipDto shipDto) {
+        PGpoint[] fromCoordinates = shipRepository.findById(shipId).getCoordinates();
+        PGpoint[] toCoordinates = shipDto.getCoordinates();
+
+        if (fromCoordinates.length != toCoordinates.length) {
+            throw new IllegalArgumentException("Trying to change ship " +
+                    "to different ship with different size");
+        }
+    }
+
+    private void checkCanChangeShipToCoordinates(Game game, Long userId, Long shipId, ShipDto shipDto) {
+        Board board = game.getMyBoard(userId);
+        PGpoint[] fromCoordinates = shipRepository.findById(shipId).getCoordinates();
+        PGpoint[] toCoordinates = shipDto.getCoordinates();
+
+        board.checkCanChangeShipCoordinates(fromCoordinates, toCoordinates);
     }
 
     @Override

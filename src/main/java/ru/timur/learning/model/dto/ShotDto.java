@@ -2,7 +2,7 @@ package ru.timur.learning.model.dto;
 
 import lombok.*;
 import org.postgresql.geometric.PGpoint;
-import ru.timur.learning.model.Board;
+import ru.timur.learning.settings.Settings;
 
 @Getter
 public class ShotDto {
@@ -14,8 +14,8 @@ public class ShotDto {
     }
 
     private void checkCorrectnessOfCoordinate(PGpoint pGpoint) {
-        if (pGpoint.x < 0 || pGpoint.x + 1 > Board.GRID_SIZE ||
-                pGpoint.y < 0 || pGpoint.y + 1 > Board.GRID_SIZE) {
+        if (pGpoint.x < 0 || pGpoint.x + 1 > Settings.GRID_SIZE ||
+                pGpoint.y < 0 || pGpoint.y + 1 > Settings.GRID_SIZE) {
             throw new IllegalArgumentException("Shot coordinate is out of board");
         }
     }

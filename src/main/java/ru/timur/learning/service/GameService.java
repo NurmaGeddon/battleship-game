@@ -15,4 +15,6 @@ public interface GameService {
     void changeUserStatusToReady(Long gameId, Long userId);
 
     void changePlayerShotTurn(Long gameId);
+
+    void checkIfPlayerWon(Long gameId, Long userId);
 }

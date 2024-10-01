@@ -25,7 +25,6 @@ public class ShotServiceImpl implements ShotService {
 
         ShotEntity shotEntity = createShotEntity(game, userId, shotDto);
         shotRepository.save(shotEntity);
-
     }
 
     private void checkPlayerShotTurn(Game game, Long userId) {

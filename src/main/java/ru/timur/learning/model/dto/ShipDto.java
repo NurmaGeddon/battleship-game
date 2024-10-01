@@ -2,7 +2,7 @@ package ru.timur.learning.model.dto;
 
 import lombok.*;
 import org.postgresql.geometric.PGpoint;
-import ru.timur.learning.model.Board;
+import ru.timur.learning.settings.Settings;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -38,8 +38,8 @@ public class ShipDto {
     }
 
     private boolean checkIncorrectnessOfCoordinate(PGpoint pGpoint) {
-        return pGpoint.x < 0 || pGpoint.x + 1 > Board.GRID_SIZE ||
-                pGpoint.y < 0 || pGpoint.y + 1 > Board.GRID_SIZE;
+        return pGpoint.x < 0 || pGpoint.x + 1 > Settings.GRID_SIZE ||
+                pGpoint.y < 0 || pGpoint.y + 1 > Settings.GRID_SIZE;
     }
 
     private void checkCoordinatesAreUnique(PGpoint[] coordinates) {

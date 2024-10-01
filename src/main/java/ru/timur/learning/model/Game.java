@@ -60,7 +60,6 @@ public class Game {
 
     public ShotEntity.Outcome getShotOutcome(Long userId, PGpoint point) {
         Board opponentBoard = getOpponentBoard(userId);
-
         return opponentBoard.getShotOutcome(point);
     }
 }

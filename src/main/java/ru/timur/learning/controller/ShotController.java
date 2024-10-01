@@ -27,8 +27,10 @@ public class ShotController {
                             @RequestBody PGpoint pGpoint) {
         ShotDto shotDto = new ShotDto(pGpoint);
         Game game = gameService.getGame(gameId);
+        Long userId = userDetails.getUserId();
 
-        shotService.takeShot(game, userDetails.getUserId(), shotDto);
+        shotService.takeShot(game, userId, shotDto);
+        gameService.checkIfPlayerWon(gameId, userId);
         gameService.changePlayerShotTurn(gameId);
 
         return gameService.getGameForUser(gameId, userDetails.getUserId());
