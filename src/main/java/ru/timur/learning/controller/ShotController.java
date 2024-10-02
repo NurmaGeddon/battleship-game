@@ -17,7 +17,6 @@ import ru.timur.learning.service.ShotService;
 @RestController
 @RequiredArgsConstructor
 public class ShotController {
-
     private final ShotService shotService;
 
     private final GameService gameService;
@@ -28,7 +27,12 @@ public class ShotController {
                             @RequestBody PGpoint pGpoint) {
         ShotDto shotDto = new ShotDto(pGpoint);
         Game game = gameService.getGame(gameId);
-        shotService.takeShot(game, userDetails.getUserId(), shotDto);
+        Long userId = userDetails.getUserId();
+
+        shotService.takeShot(game, userId, shotDto);
+        gameService.checkIfPlayerWon(gameId, userId);
+        gameService.changePlayerShotTurn(gameId);
+
         return gameService.getGameForUser(gameId, userDetails.getUserId());
     }
 }
