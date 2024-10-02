@@ -31,12 +31,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUser(Long id) {
-        return userRepository.findById(id).orElseThrow();
+        return userRepository.findById(id);
     }
 
     @Override
     public void updateUser(Long userId, User updateData) {
-        User foundUser = userRepository.findById(userId).orElseThrow();
+        User foundUser = userRepository.findById(userId);
         User updatedUser = new User(
                 userId,
                 foundUser.getLogin().isEmpty()
