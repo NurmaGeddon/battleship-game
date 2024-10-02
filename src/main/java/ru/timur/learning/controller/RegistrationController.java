@@ -7,9 +7,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.timur.learning.dto.UserDto;
+import ru.timur.learning.model.dto.UserDto;
 import ru.timur.learning.service.SignUpService;
-
 
 @RequiredArgsConstructor
 @Controller

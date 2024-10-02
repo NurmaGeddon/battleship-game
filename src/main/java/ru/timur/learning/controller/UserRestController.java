@@ -15,7 +15,7 @@ import java.util.List;
 public class UserRestController {
 
     private static final Logger logger =
-            LoggerFactory.getLogger(RegistrationController.class);
+            LoggerFactory.getLogger(UserRestController.class);
 
     private final UserRepository userRepository;
 
@@ -27,7 +27,7 @@ public class UserRestController {
                 UserRestController.class
         );
 
-        return userRepository.findById(userId).get();
+        return userRepository.findById(userId);
     }
 
     @GetMapping

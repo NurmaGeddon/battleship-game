@@ -12,3 +12,9 @@
 ```docker compose up -d```
 
 3. Start Tomcat server
+
+4. To remove containers images use
+
+```docker compose down -v --remove-orphans```
+```docker compose down --remove-orphans```
+
