@@ -35,7 +35,8 @@ public class ShipController {
                                        @PathVariable Long shipId,
                                        @RequestBody PGpoint[] coordinates) {
         ShipDto shipDto = new ShipDto(coordinates);
-        shipService.changeShipPlacement(gameId, shipId, shipDto);
+        Game game = gameService.getGame(gameId);
+        shipService.changeShipPlacement(game, userDetails.getUserId(), shipId, shipDto);
         return gameService.getGameForUser(gameId, userDetails.getUserId());
     }
 

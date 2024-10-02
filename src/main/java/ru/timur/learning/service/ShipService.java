@@ -1,6 +1,5 @@
 package ru.timur.learning.service;
 
-import org.postgresql.geometric.PGpoint;
 import ru.timur.learning.model.Game;
 import ru.timur.learning.model.ShipsOnBoard;
 import ru.timur.learning.model.dto.ShipDto;
@@ -15,7 +14,7 @@ public interface ShipService {
 
     void placeShip(Game game, Long userId, ShipDto shipDto);
 
-    void changeShipPlacement(Long gameId, Long shipId, ShipDto shipDto);
+    void changeShipPlacement(Game game, Long userId, Long shipId, ShipDto shipDto);
 
     void deleteShip(Long shipId);
 }
