@@ -3,8 +3,11 @@ package ru.timur.learning.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.postgresql.geometric.PGpoint;
 import org.springframework.stereotype.Service;
+import ru.timur.learning.model.Board;
 import ru.timur.learning.model.Game;
+import ru.timur.learning.model.ShipsOnBoard;
 import ru.timur.learning.model.dto.ShipDto;
+import ru.timur.learning.model.entity.GameEntity;
 import ru.timur.learning.model.entity.ShipEntity;
 import ru.timur.learning.repository.ShipRepository;
 import ru.timur.learning.service.ShipService;
@@ -18,21 +21,14 @@ public class ShipServiceImpl implements ShipService {
     private final ShipRepository shipRepository;
 
     @Override
-    public List<PGpoint> getShipsCoordinates(Long gameId, Integer playerNumber) {
-        List<ShipEntity> shipEntities = shipRepository.findAllForGame(gameId);
-        List<PGpoint[]> shipsCoordinates = shipEntities
-                .stream()
-                .map(ShipEntity::getCoordinates)
-                .toList();
-        return makeListOfCoordinates(shipsCoordinates);
+    public List<ShipEntity> getShipsForPlayer(Long gameId, Integer playerNumber) {
+        return shipRepository.findAllForGameAndPlayer(gameId, playerNumber);
     }
 
-    private List<PGpoint> makeListOfCoordinates(List<PGpoint[]> shipsCoordinates) {
-        List<PGpoint> result = new ArrayList<>();
-        for (PGpoint[] points : shipsCoordinates) {
-            result.addAll(Arrays.stream(points).toList());
-        }
-        return result;
+    @Override
+    public ShipsOnBoard createShipsOnBoard(Long gameId, Integer playerNumber) {
+        List<ShipEntity> shipEntities = shipRepository.findAllForGameAndPlayer(gameId, playerNumber);
+        return new ShipsOnBoard(shipEntities);
     }
 
     @Override

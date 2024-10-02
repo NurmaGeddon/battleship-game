@@ -2,10 +2,9 @@ package ru.timur.learning.model;
 
 import lombok.Getter;
 import org.postgresql.geometric.PGpoint;
-import org.springframework.beans.factory.annotation.Autowired;
+import ru.timur.learning.model.entity.ShipEntity;
 import ru.timur.learning.model.entity.ShotEntity;
-import ru.timur.learning.service.ShipService;
-import ru.timur.learning.service.ShotService;
+import ru.timur.learning.settings.Settings;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,90 +12,135 @@ import java.util.List;
 @Getter
 public class Board {
 
-    public enum CellState {
-        FREE, SHIP, SHIP_HIT, MISSED
-    }
+    private final ShipsOnBoard shipsOnBoard;
 
-    private static final Integer GRID_SIZE = 10;
-
-    private final ShipService shipService;
-
-    private final ShotService shotService;
-
-    private final Long gameId;
-
-    private final Integer playerNumber;
-
-    private final CellState[][] grid;
+    private final Cell[][] grid;
 
     {
-        this.grid = new CellState[GRID_SIZE][GRID_SIZE];
-        for (CellState[] row : this.grid) {
-            Arrays.fill(row, CellState.FREE);
+        this.grid = new Cell[Settings.GRID_SIZE][Settings.GRID_SIZE];
+        for (Cell[] row : this.grid) {
+            Arrays.fill(row, new Cell(Cell.CellState.FREE, null, null));
         }
     }
 
-    @Autowired
-    public Board(ShipService shipService, ShotService shotService, Long gameId, Integer playerNumber) {
-        this.shipService = shipService;
-        this.shotService = shotService;
-        this.gameId = gameId;
-        this.playerNumber = playerNumber;
-        placeShips();
-        placeShots();
+    public Board(ShipsOnBoard shipsOnBoard, List<ShipEntity> shipEntities, List<PGpoint> shotsCoordinates) {
+        this.shipsOnBoard = shipsOnBoard;
+        placeShots(shotsCoordinates);
+        placeShips(shipEntities);
     }
 
-    private void placeShips() {
-        List<PGpoint> shipsCoordinates = shipService.getShipsCoordinates(gameId, playerNumber);
-
-        changeCoordinatesStateTo(shipsCoordinates);
-    }
-
-    public ShotEntity.Outcome getShotOutcome(PGpoint point) {
-        CellState cellState = grid[(int) point.x][(int) point.y];
-        if (cellState.equals(CellState.SHIP)) {
-            return ShotEntity.Outcome.HIT;
-        } else if (cellState.equals(CellState.FREE)) {
-            return ShotEntity.Outcome.MISS;
-        } else {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    private void changeCoordinatesStateTo(List<PGpoint> coordinates) {
-        for (PGpoint point : coordinates) {
-            grid[(int) point.x][(int) point.y] = CellState.SHIP;
-        }
-    }
-
-    private void placeShots() {
-        Integer opponentPlayerNumber = playerNumber.equals(1) ? 2 : 1;
-        List<PGpoint> shotsCoordinates = shotService.getCoordinates(gameId, opponentPlayerNumber);
-
-        for (PGpoint shotPoint : shotsCoordinates) {
+    private void placeShots(List<PGpoint> shotsCoordinates) {
+        shotsCoordinates.forEach(pGpoint -> {
             assert grid != null;
-            CellState cellState = grid[(int) shotPoint.x][(int) shotPoint.y];
+            grid[(int) pGpoint.x][(int) pGpoint.y] = createMissedCell();
+        });
+    }
 
-            if (cellState.equals(CellState.SHIP)) {
-                grid[(int) shotPoint.x][(int) shotPoint.y] = CellState.SHIP_HIT;
-            } else {
-                grid[(int) shotPoint.x][(int) shotPoint.y] = CellState.MISSED;
+    private Cell createMissedCell() {
+        return new Cell(Cell.CellState.MISSED, null, null);
+    }
+
+    private void placeShips(List<ShipEntity> shipEntities) {
+        for (ShipEntity shipEntity : shipEntities) {
+            Boolean isDestroyed = checkShipIsDestroyed(shipEntity.getCoordinates());
+            placeShipOnGrid(shipEntity.getCoordinates(), shipEntity.getId(), isDestroyed);
+        }
+    }
+
+    private Boolean checkShipIsDestroyed(PGpoint[] coordinates) {
+        boolean result = true;
+        for (PGpoint pGpoint : coordinates) {
+            Cell.CellState gridCellState = getGridCellState(pGpoint);
+
+            if (!gridCellState.equals(Cell.CellState.MISSED)) {
+                result = false;
+                break;
             }
         }
+        return result;
     }
 
-    public CellState[][] getMyView() {
-        return grid;
+    private Cell.CellState getGridCellState(PGpoint pGpoint) {
+        return grid[(int) pGpoint.x][(int) pGpoint.y].getCellState();
     }
 
-    public CellState[][] getOpponentView() {
-        CellState[][] result = new CellState[GRID_SIZE][GRID_SIZE];
+    private void placeShipOnGrid(PGpoint[] coordinates, Long shipId, Boolean isDestroyed) {
+        for (PGpoint pGpoint : coordinates) {
+            assert grid != null;
 
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid.length; j++) {
-                result[i][j] = grid[i][j].equals(CellState.SHIP)
-                        ? CellState.FREE
-                        : grid[i][j];
+            Cell.CellState gridCellState = getGridCellState(pGpoint);
+            Cell newShipCell = new Cell(null, shipId, isDestroyed);
+
+            if (gridCellState.equals(Cell.CellState.MISSED)) {
+                newShipCell.setCellState(Cell.CellState.SHIP_HIT);
+            } else if (gridCellState.equals(Cell.CellState.FREE)) {
+                newShipCell.setCellState(Cell.CellState.SHIP);
+            } else {
+                throw new IllegalArgumentException("Wrong grid cell state");
+            }
+
+            grid[(int) pGpoint.x][(int) pGpoint.y] = newShipCell;
+        }
+    }
+
+    public ShotEntity.Outcome getShotOutcome(PGpoint pGpoint) {
+        Cell.CellState gridCellState = getGridCellState(pGpoint);
+
+        if (gridCellState.equals(Cell.CellState.SHIP)) {
+            return ShotEntity.Outcome.HIT;
+        } else if (gridCellState.equals(Cell.CellState.FREE)) {
+            return ShotEntity.Outcome.MISS;
+        } else {
+            throw new IllegalArgumentException("Cannot take shot here");
+        }
+    }
+
+    public Cell[][] getFilteredGrid() {
+        Cell[][] result = grid.clone();
+
+        for (int x = 0; x < result.length; x++) {
+            for (int y = 0; y < result[x].length; y++) {
+
+                if (grid[x][y].getCellState()
+                        .equals(Cell.CellState.SHIP)) {
+                    result[x][y] = createFreeCell();
+                }
+            }
+        }
+        return result;
+    }
+
+    private Cell createFreeCell() {
+        return new Cell(Cell.CellState.FREE, null, null);
+    }
+
+    public void checkCoordinatesAreFree(PGpoint[] coordinates) {
+        Arrays.stream(coordinates).forEach(pGpoint -> {
+            Cell.CellState gridCellState = getGridCellState(pGpoint);
+
+            if (!gridCellState.equals(Cell.CellState.FREE)) {
+                throw new IllegalArgumentException("Selected coordinates are already taken");
+            }
+        });
+    }
+
+    public void checkCanChangeShipCoordinates(PGpoint[] fromCoordinates, PGpoint[] toCoordinates) {
+        for (PGpoint pGpoint : fromCoordinates) {
+            grid[(int) pGpoint.x][(int) pGpoint.y] = createFreeCell();
+        }
+        checkCoordinatesAreFree(toCoordinates);
+    }
+
+    public Boolean checkPlayerWon() {
+        boolean result = true;
+        for (Cell[] cellRow : grid) {
+            for (Cell cell : cellRow) {
+                Cell.CellState cellState = cell.getCellState();
+
+                if (cellState.equals(Cell.CellState.SHIP)) {
+                    result = false;
+                    break;
+                }
             }
         }
         return result;
