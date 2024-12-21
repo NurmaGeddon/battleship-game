@@ -2,6 +2,7 @@ package ru.timur.learning.settings;
 
 import java.util.Map;
 
+//TODO move to application.properties
 public class Settings {
     public static final Integer GRID_SIZE = 5;
 

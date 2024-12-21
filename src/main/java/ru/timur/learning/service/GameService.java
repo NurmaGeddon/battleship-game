@@ -1,5 +1,6 @@
 package ru.timur.learning.service;
 
+import org.postgresql.geometric.PGpoint;
 import ru.timur.learning.model.Game;
 import ru.timur.learning.model.dto.GameDto;
 
@@ -10,11 +11,9 @@ public interface GameService {
 
     Game getGame(Long gameId);
 
-    GameDto getGameForUser(Long gameId, Long userId);
+    GameDto getGameDtoForUser(Long gameId, Long userId);
 
     void changeUserStatusToReady(Long gameId, Long userId);
-
-    void changePlayerShotTurn(Long gameId);
 
     void checkIfPlayerWon(Long gameId, Long userId);
 }

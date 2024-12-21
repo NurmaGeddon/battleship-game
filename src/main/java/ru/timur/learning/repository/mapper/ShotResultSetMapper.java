@@ -7,21 +7,9 @@ import ru.timur.learning.repository.ResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 public class ShotResultSetMapper implements ResultSetMapper<ShotEntity> {
-    @Override
-    public List<ShotEntity> parseObjects(ResultSet resultSet) throws SQLException {
-        List<ShotEntity> shots = new ArrayList<>();
-        while (resultSet.next()) {
-            ShotEntity shotEntity = this.parseObject(resultSet);
-            shots.add(shotEntity);
-        }
-        return shots;
-    }
-
     @Override
     public ShotEntity parseObject(ResultSet row) throws SQLException {
         return new ShotEntity(

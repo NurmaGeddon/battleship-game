@@ -12,12 +12,11 @@ import java.util.Map;
  * Class used only for checking ship placement
  */
 @Getter
-public class ShipsOnBoard {
+public class InitiallyPlacedShips {
 
-    private final Map<Integer, Integer> shipLengthToNumShips;
+    private final Map<Integer, Integer> shipLengthToNumShips = new HashMap<>();
 
-    public ShipsOnBoard(List<ShipEntity> shipEntities) {
-        shipLengthToNumShips = new HashMap<>();
+    public InitiallyPlacedShips(List<ShipEntity> shipEntities) {
         fillShipLengthToNumShips(shipEntities);
     }
 

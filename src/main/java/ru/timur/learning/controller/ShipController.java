@@ -20,31 +20,29 @@ public class ShipController {
     private final GameService gameService;
 
     @PostMapping
-    public GameDto placeShip(@AuthenticationPrincipal CustomUserDetails userDetails,
-                             @PathVariable Long gameId,
-                             @RequestBody PGpoint[] coordinates) {
-        ShipDto shipDto = new ShipDto(coordinates);
+    public GameDto placeShip(@AuthenticationPrincipal final CustomUserDetails userDetails,
+                             @PathVariable final Long gameId,
+                             @RequestBody final PGpoint[] coordinates) {
         Game game = gameService.getGame(gameId);
-        shipService.placeShip(game, userDetails.getUserId(), shipDto);
-        return gameService.getGameForUser(gameId, userDetails.getUserId());
+        shipService.placeShip(game, userDetails.getUserId(), coordinates);
+        return gameService.getGameDtoForUser(gameId, userDetails.getUserId());
     }
 
     @PutMapping("{shipId}")
-    public GameDto changeShipPlacement(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                       @PathVariable Long gameId,
-                                       @PathVariable Long shipId,
-                                       @RequestBody PGpoint[] coordinates) {
-        ShipDto shipDto = new ShipDto(coordinates);
+    public GameDto changeShipPlacement(@AuthenticationPrincipal final CustomUserDetails userDetails,
+                                       @PathVariable final Long gameId,
+                                       @PathVariable final Long shipId,
+                                       @RequestBody final PGpoint[] coordinates) {
         Game game = gameService.getGame(gameId);
-        shipService.changeShipPlacement(game, userDetails.getUserId(), shipId, shipDto);
-        return gameService.getGameForUser(gameId, userDetails.getUserId());
+        shipService.changeShipPlacement(game, userDetails.getUserId(), shipId, coordinates);
+        return gameService.getGameDtoForUser(gameId, userDetails.getUserId());
     }
 
     @DeleteMapping("{shipId}")
-    public GameDto deleteShip(@AuthenticationPrincipal CustomUserDetails userDetails,
-                              @PathVariable Long shipId,
-                              @PathVariable Long gameId) {
+    public GameDto deleteShip(@AuthenticationPrincipal final CustomUserDetails userDetails,
+                              @PathVariable final Long shipId,
+                              @PathVariable final Long gameId) {
         shipService.deleteShip(shipId);
-        return gameService.getGameForUser(gameId, userDetails.getUserId());
+        return gameService.getGameDtoForUser(gameId, userDetails.getUserId());
     }
 }

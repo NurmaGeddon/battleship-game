@@ -6,20 +6,9 @@ import ru.timur.learning.repository.ResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 public class GameResultSetMapper implements ResultSetMapper<GameEntity> {
-    @Override
-    public List<GameEntity> parseObjects(ResultSet resultSet) throws SQLException {
-        List<GameEntity> games = new ArrayList<>();
-        while (resultSet.next()) {
-            GameEntity game = this.parseObject(resultSet);
-            games.add(game);
-        }
-        return games;
-    }
 
     @Override
     public GameEntity parseObject(ResultSet row) throws SQLException {

@@ -21,7 +21,7 @@ public class RegistrationController {
     private final SignUpService signUpService;
 
     @GetMapping
-    public String getRegistrationPage(Authentication authentication, Model model) {
+    public String getRegistrationPage(final Authentication authentication, final Model model) {
         logger.debug("getRegistrationPage() is executed, value {}", RegistrationController.class);
 
         if (authentication != null) {
@@ -32,7 +32,7 @@ public class RegistrationController {
     }
 
     @PostMapping
-    public String registerUser(UserDto userDto) {
+    public String registerUser(final UserDto userDto) {
         logger.debug("registerUser() is executed, value {}", RegistrationController.class);
 
         signUpService.signUp(userDto);

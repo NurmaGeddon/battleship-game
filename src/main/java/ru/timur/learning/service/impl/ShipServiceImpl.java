@@ -5,9 +5,8 @@ import org.postgresql.geometric.PGpoint;
 import org.springframework.stereotype.Service;
 import ru.timur.learning.model.Board;
 import ru.timur.learning.model.Game;
-import ru.timur.learning.model.ShipsOnBoard;
+import ru.timur.learning.model.InitiallyPlacedShips;
 import ru.timur.learning.model.dto.ShipDto;
-import ru.timur.learning.model.entity.GameEntity;
 import ru.timur.learning.model.entity.ShipEntity;
 import ru.timur.learning.repository.ShipRepository;
 import ru.timur.learning.service.ShipService;
@@ -32,13 +31,15 @@ public class ShipServiceImpl implements ShipService {
     }
 
     @Override
-    public ShipsOnBoard createShipsOnBoard(Long gameId, Integer playerNumber) {
+    public InitiallyPlacedShips createInitiallyPlacedShips(Long gameId, Integer playerNumber) {
         List<ShipEntity> shipEntities = shipRepository.findAllForGameAndPlayer(gameId, playerNumber);
-        return new ShipsOnBoard(shipEntities);
+        return new InitiallyPlacedShips(shipEntities);
     }
 
     @Override
-    public void placeShip(Game game, Long userId, ShipDto shipDto) {
+    public void placeShip(Game game, Long userId, PGpoint[] coordinates) {
+        ShipDto shipDto = new ShipDto(coordinates);
+
         checkPlayerCanPlaceShip(game, userId, shipDto);
 
         Integer playerNumber = game.getPlayerNumberForGame(userId);
@@ -51,32 +52,19 @@ public class ShipServiceImpl implements ShipService {
 
     private void checkPlayerCanPlaceShip(Game game, Long userId, ShipDto shipDto) {
         // TODO check that player is not ready for game
-        checkGameState(game);
-        checkPlayerCanPlaceShipWithSize(game, userId, shipDto.getCoordinates().length);
-        checkCoordinatesAreFree(game, userId, shipDto);
+        game.checkStateShipPlacement();
+        game.checkPlayerCanPlaceShipWithSize(userId, shipDto.getCoordinates().length);
+        game.checkCoordinatesAreFree(userId, shipDto);
     }
-
-    private void checkGameState(Game game) {
-        if (!game.getGameState().equals(GameEntity.GameState.SHIP_PLACEMENT)) {
-            throw new IllegalArgumentException("Wrong game state");
-        }
-    }
-
-    private void checkPlayerCanPlaceShipWithSize(Game game, Long userId, int length) {
-        ShipsOnBoard shipsOnBoard = game.getMyBoard(userId).getShipsOnBoard();
-        shipsOnBoard.checkCanPlaceAnotherShip(length);
-    }
-
-    private void checkCoordinatesAreFree(Game game, Long userId, ShipDto shipDto) {
-        Board board = game.getMyBoard(userId);
-        board.checkCoordinatesAreFree(shipDto.getCoordinates());
-    }
-
 
     @Override
-    public void changeShipPlacement(Game game, Long userId, Long shipId, ShipDto shipDto) {
+    public void changeShipPlacement(Game game, Long userId, Long shipId, PGpoint[] coordinates) {
+        ShipDto shipDto = new ShipDto(coordinates);
         checkPlayerCanChangeShipPlacement(game, userId, shipId, shipDto);
+        updateShipRepositoryCoordinates(shipId, shipDto);
+    }
 
+    private void updateShipRepositoryCoordinates(Long shipId, ShipDto shipDto) {
         ShipEntity shipEntity = shipRepository.findById(shipId);
         shipEntity.setCoordinates(shipDto.getCoordinates());
         shipRepository.update(shipEntity);
@@ -84,7 +72,7 @@ public class ShipServiceImpl implements ShipService {
 
     private void checkPlayerCanChangeShipPlacement(Game game, Long userId, Long shipId, ShipDto shipDto) {
         // TODO check that player is not ready for game
-        checkGameState(game);
+        game.checkStateShipPlacement();
         checkShipLengthsAreSame(shipId, shipDto);
         checkCanChangeShipToCoordinates(game, userId, shipId, shipDto);
     }
@@ -104,7 +92,7 @@ public class ShipServiceImpl implements ShipService {
         PGpoint[] fromCoordinates = shipRepository.findById(shipId).getCoordinates();
         PGpoint[] toCoordinates = shipDto.getCoordinates();
 
-        board.checkCanChangeShipCoordinates(fromCoordinates, toCoordinates);
+        board.checkCanTakeNewCoordinates(fromCoordinates, toCoordinates);
     }
 
     @Override

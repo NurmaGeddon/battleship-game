@@ -3,6 +3,7 @@ package ru.timur.learning.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.postgresql.geometric.PGpoint;
+import ru.timur.learning.model.dto.ShipDto;
 import ru.timur.learning.model.entity.GameEntity;
 import ru.timur.learning.model.entity.ShotEntity;
 
@@ -28,6 +29,10 @@ public class Game {
         this.player1Board = player1Board;
         this.player2Board = player2Board;
         gameState = entity.getGameState();
+    }
+
+    public Boolean checkPlayerWon(Long userId) {
+        return getOpponentBoard(userId).checkPlayerWon();
     }
 
     public Integer getPlayerNumberForGame(Long userId) {
@@ -61,5 +66,26 @@ public class Game {
     public ShotEntity.Outcome getShotOutcome(Long userId, PGpoint point) {
         Board opponentBoard = getOpponentBoard(userId);
         return opponentBoard.getShotOutcome(point);
+    }
+
+    public void checkPlayerFinishedShipPlacement(Long userId) {
+        InitiallyPlacedShips initiallyPlacedShips = getMyBoard(userId).getInitiallyPlacedShips();
+        initiallyPlacedShips.checkPlacedAllShips();
+    }
+
+    public void checkPlayerCanPlaceShipWithSize(Long userId, int length) {
+        InitiallyPlacedShips initiallyPlacedShips = getMyBoard(userId).getInitiallyPlacedShips();
+        initiallyPlacedShips.checkCanPlaceAnotherShip(length);
+    }
+
+    public void checkStateShipPlacement() {
+        if (!getGameState().equals(GameEntity.GameState.SHIP_PLACEMENT)) {
+            throw new IllegalArgumentException("Wrong game state");
+        }
+    }
+
+    public void checkCoordinatesAreFree(Long userId, ShipDto shipDto) {
+        Board board = getMyBoard(userId);
+        board.checkCoordinatesAreFree(shipDto.getCoordinates());
     }
 }

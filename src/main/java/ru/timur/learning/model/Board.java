@@ -12,19 +12,27 @@ import java.util.List;
 @Getter
 public class Board {
 
-    private final ShipsOnBoard shipsOnBoard;
+    private final InitiallyPlacedShips initiallyPlacedShips;
 
     private final Cell[][] grid;
+
+    private static Cell createMissedCell() {
+        return new Cell(Cell.CellState.MISSED, null, null);
+    }
+
+    private static Cell createFreeCell() {
+        return new Cell(Cell.CellState.FREE, null, null);
+    }
 
     {
         this.grid = new Cell[Settings.GRID_SIZE][Settings.GRID_SIZE];
         for (Cell[] row : this.grid) {
-            Arrays.fill(row, new Cell(Cell.CellState.FREE, null, null));
+            Arrays.fill(row, createFreeCell());
         }
     }
 
-    public Board(ShipsOnBoard shipsOnBoard, List<ShipEntity> shipEntities, List<PGpoint> shotsCoordinates) {
-        this.shipsOnBoard = shipsOnBoard;
+    public Board(InitiallyPlacedShips initiallyPlacedShips, List<ShipEntity> shipEntities, List<PGpoint> shotsCoordinates) {
+        this.initiallyPlacedShips = initiallyPlacedShips;
         placeShots(shotsCoordinates);
         placeShips(shipEntities);
     }
@@ -36,10 +44,6 @@ public class Board {
         });
     }
 
-    private Cell createMissedCell() {
-        return new Cell(Cell.CellState.MISSED, null, null);
-    }
-
     private void placeShips(List<ShipEntity> shipEntities) {
         for (ShipEntity shipEntity : shipEntities) {
             Boolean isDestroyed = checkShipIsDestroyed(shipEntity.getCoordinates());
@@ -47,39 +51,44 @@ public class Board {
         }
     }
 
-    private Boolean checkShipIsDestroyed(PGpoint[] coordinates) {
-        boolean result = true;
-        for (PGpoint pGpoint : coordinates) {
-            Cell.CellState gridCellState = getGridCellState(pGpoint);
-
-            if (!gridCellState.equals(Cell.CellState.MISSED)) {
-                result = false;
+    private Boolean checkShipIsDestroyed(PGpoint[] shipCoordinates) {
+        boolean destroyed = true;
+        for (PGpoint shipCoordinate : shipCoordinates) {
+            if (isShipHit(shipCoordinate)) {
+                destroyed = false;
                 break;
             }
         }
-        return result;
+        return destroyed;
+    }
+
+    private Boolean isShipHit(final PGpoint shipCoordinate) {
+        Cell.CellState gridCellState = getGridCellState(shipCoordinate);
+        return !gridCellState.equals(Cell.CellState.MISSED);
     }
 
     private Cell.CellState getGridCellState(PGpoint pGpoint) {
         return grid[(int) pGpoint.x][(int) pGpoint.y].getCellState();
     }
 
-    private void placeShipOnGrid(PGpoint[] coordinates, Long shipId, Boolean isDestroyed) {
-        for (PGpoint pGpoint : coordinates) {
+    private void placeShipOnGrid(PGpoint[] shipCoordinates, Long shipId, Boolean isDestroyed) {
+        for (PGpoint shipCoordinate : shipCoordinates) {
             assert grid != null;
 
-            Cell.CellState gridCellState = getGridCellState(pGpoint);
-            Cell newShipCell = new Cell(null, shipId, isDestroyed);
+            Cell.CellState shipCellState = getGridCellState(shipCoordinate);
+            Cell.CellState newShipCellState;
 
-            if (gridCellState.equals(Cell.CellState.MISSED)) {
-                newShipCell.setCellState(Cell.CellState.SHIP_HIT);
-            } else if (gridCellState.equals(Cell.CellState.FREE)) {
-                newShipCell.setCellState(Cell.CellState.SHIP);
+            if (shipCellState.equals(Cell.CellState.MISSED)) {
+                newShipCellState = Cell.CellState.SHIP_HIT;
+            } else if (shipCellState.equals(Cell.CellState.FREE)) {
+                newShipCellState = Cell.CellState.SHIP;
             } else {
                 throw new IllegalArgumentException("Wrong grid cell state");
             }
 
-            grid[(int) pGpoint.x][(int) pGpoint.y] = newShipCell;
+
+            Cell newShipCell = new Cell(newShipCellState, shipId, isDestroyed);
+            grid[(int) shipCoordinate.x][(int) shipCoordinate.y] = newShipCell;
         }
     }
 
@@ -96,53 +105,57 @@ public class Board {
     }
 
     public Cell[][] getFilteredGrid() {
-        Cell[][] result = grid.clone();
+        Cell[][] filteredGrid = grid.clone();
 
-        for (int x = 0; x < result.length; x++) {
-            for (int y = 0; y < result[x].length; y++) {
+        for (int x = 0; x < filteredGrid.length; x++) {
+            for (int y = 0; y < filteredGrid[x].length; y++) {
 
                 if (grid[x][y].getCellState()
                         .equals(Cell.CellState.SHIP)) {
-                    result[x][y] = createFreeCell();
+                    filteredGrid[x][y] = createFreeCell();
                 }
             }
         }
-        return result;
-    }
-
-    private Cell createFreeCell() {
-        return new Cell(Cell.CellState.FREE, null, null);
+        return filteredGrid;
     }
 
     public void checkCoordinatesAreFree(PGpoint[] coordinates) {
         Arrays.stream(coordinates).forEach(pGpoint -> {
-            Cell.CellState gridCellState = getGridCellState(pGpoint);
+            final Cell.CellState gridCellState = getGridCellState(pGpoint);
 
-            if (!gridCellState.equals(Cell.CellState.FREE)) {
+            if (isCoordinateTaken(gridCellState)) {
                 throw new IllegalArgumentException("Selected coordinates are already taken");
             }
         });
     }
 
-    public void checkCanChangeShipCoordinates(PGpoint[] fromCoordinates, PGpoint[] toCoordinates) {
-        for (PGpoint pGpoint : fromCoordinates) {
-            grid[(int) pGpoint.x][(int) pGpoint.y] = createFreeCell();
-        }
+    private Boolean isCoordinateTaken(final Cell.CellState gridCellState) {
+        return !gridCellState.equals(Cell.CellState.FREE);
+    }
+
+    public void checkCanTakeNewCoordinates(PGpoint[] fromCoordinates, PGpoint[] toCoordinates) {
+        emptyShipCoordinates(fromCoordinates);
         checkCoordinatesAreFree(toCoordinates);
     }
 
+    private void emptyShipCoordinates(PGpoint[] fromCoordinates) {
+        for (PGpoint shipCoordinate : fromCoordinates) {
+            grid[(int) shipCoordinate.x][(int) shipCoordinate.y] = createFreeCell();
+        }
+    }
+
     public Boolean checkPlayerWon() {
-        boolean result = true;
+        boolean playerWon = true;
         for (Cell[] cellRow : grid) {
             for (Cell cell : cellRow) {
                 Cell.CellState cellState = cell.getCellState();
 
                 if (cellState.equals(Cell.CellState.SHIP)) {
-                    result = false;
+                    playerWon = false;
                     break;
                 }
             }
         }
-        return result;
+        return playerWon;
     }
 }

@@ -7,22 +7,10 @@ import ru.timur.learning.repository.ResultSetMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 @Component
 public class ShipResultSetMapper implements ResultSetMapper<ShipEntity> {
-
-    @Override
-    public List<ShipEntity> parseObjects(ResultSet resultSet) throws SQLException {
-        List<ShipEntity> shipEntities = new ArrayList<>();
-        while (resultSet.next()) {
-            ShipEntity ship = this.parseObject(resultSet);
-            shipEntities.add(ship);
-        }
-        return shipEntities;
-    }
 
     @Override
     public ShipEntity parseObject(ResultSet row) throws SQLException {

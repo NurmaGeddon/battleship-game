@@ -19,7 +19,7 @@ public class GameController {
      * @return created game ID
      */
     @PostMapping("/create")
-    public Long createGame(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public Long createGame(@AuthenticationPrincipal final CustomUserDetails userDetails) {
         return gameService.createGame(userDetails.getUserId());
     }
 
@@ -29,7 +29,7 @@ public class GameController {
      * @return created game ID
      */
     @PostMapping("/auto_join")
-    public Long joinGame(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public Long joinGame(@AuthenticationPrincipal final CustomUserDetails userDetails) {
         return gameService.joinGame(userDetails.getUserId());
     }
 
@@ -40,9 +40,9 @@ public class GameController {
      * @return dto object for game
      */
     @GetMapping("/{gameId}")
-    public GameDto getGame(@AuthenticationPrincipal CustomUserDetails userDetails,
-                           @PathVariable Long gameId) {
-        return gameService.getGameForUser(gameId, userDetails.getUserId());
+    public GameDto getGame(@AuthenticationPrincipal final CustomUserDetails userDetails,
+                           @PathVariable final Long gameId) {
+        return gameService.getGameDtoForUser(gameId, userDetails.getUserId());
     }
 
     /**
@@ -52,9 +52,9 @@ public class GameController {
      * @return dto object for game
      */
     @PostMapping("{gameId}/ready")
-    public GameDto playerReadyForGame(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                      @PathVariable Long gameId) {
+    public GameDto playerReadyForGame(@AuthenticationPrincipal final CustomUserDetails userDetails,
+                                      @PathVariable final Long gameId) {
         gameService.changeUserStatusToReady(gameId, userDetails.getUserId());
-        return gameService.getGameForUser(gameId, userDetails.getUserId());
+        return gameService.getGameDtoForUser(gameId, userDetails.getUserId());
     }
 }
